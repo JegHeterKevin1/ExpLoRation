@@ -64,6 +64,9 @@ extern "C" {
  */
 #define LORAWAN_SWITCH_CLASS_PORT                   3
 
+
+#define CAYENNE_DIGITAL_IO_APP_PORT					99
+
 /*!
  * LoRaWAN default endNode class port
  */
