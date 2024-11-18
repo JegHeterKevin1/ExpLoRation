@@ -28,6 +28,9 @@
 #include "tinygps.h"
 #include "sys_app.h"
 #include "sys_sensors.h"
+#include "app_lorawan.h"
+#include "lora_app.h"
+#include "stm32_seq.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -161,7 +164,7 @@ int main(void)
 #if defined(LORAWAN_ACTIVATED)
 
 	/* Initialize all configured peripherals */
-	MX_LoRaWAN_Init();
+	LoRaWAN_Init();
 
 #endif	// LORAWAN_ACTIVATED
 
@@ -181,7 +184,9 @@ int main(void)
 		HAL_Delay(1000);
 
 #if defined(LORAWAN_ACTIVATED)
-		MX_LoRaWAN_Process();
+
+		UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
+
 #endif	// LORAWAN_ACTIVATED
 
 #if defined(IKS01A1_ACTIVATED)

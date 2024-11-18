@@ -90,7 +90,7 @@ extern "C" {
  * When set to 1 DevEui is LORAWAN_DEVICE_EUI
  * When set to 0 DevEui is automatically set with a value provided by MCU platform
  */
-#define STATIC_DEVICE_EUI                                  0
+#define STATIC_DEVICE_EUI                                  1
 
 // Using keys from https://liveobjects.orange-business.com/#/devices/view/urn:lo:nsid:lora:0004A30B00ED4016?groupPath=%2FBE
 // DevEUI: 0004A30B00ED4016
@@ -101,7 +101,7 @@ extern "C" {
  * end-device IEEE EUI (big endian)
  */
 //#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x01, 0x01, 0x01, 0x01, 0x01 }
-#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x15, 0x05, 0x00, 0x5C, 0xFD }
+#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x15, 0x00, 0x0A, 0xDA, 0x76 }
 
 /*!
  * App/Join server IEEE EUI (big endian)
