@@ -24,6 +24,8 @@
 #include "stm32_lpm.h"
 #include "stm32_lpm_if.h"
 #include "usart_if.h"
+#include "gps_uart_if.h"
+#include "main.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -122,6 +124,10 @@ void PWR_ExitStopMode(void)
 
   /* Resume not retained USARTx and DMA */
   vcom_Resume();
+
+#if defined(GNSS_ACTIVATED)
+  gps_uart_Resume();
+#endif
   /* USER CODE BEGIN ExitStopMode_2 */
 
   /* USER CODE END ExitStopMode_2 */

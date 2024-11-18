@@ -31,11 +31,10 @@
 #include "utilities_def.h"
 #include "sys_debug.h"
 #include "sys_sensors.h"
-#include "stm32wlxx.h"
-#include "eeprom-board.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "stm32wlxx.h"
+#include "eeprom-board.h"
 /* USER CODE END Includes */
 
 /* External variables ---------------------------------------------------------*/
@@ -196,9 +195,6 @@ uint16_t GetTemperatureLevel(void)
 
 void GetUniqueId(uint8_t *id)
 {
-  /* USER CODE BEGIN GetUniqueId_1 */
-
-  /* USER CODE END GetUniqueId_1 */
   uint32_t val = 0;
   val = LL_FLASH_GetUDN();
   if (val == 0xFFFFFFFF)  /* Normally this should not happen */
@@ -229,9 +225,6 @@ void GetUniqueId(uint8_t *id)
     id[0] = (val >> 16) & 0xFF;
   }
 
-  /* USER CODE BEGIN GetUniqueId_2 */
-
-  /* USER CODE END GetUniqueId_2 */
 }
 
 uint32_t GetDevAddr(void)

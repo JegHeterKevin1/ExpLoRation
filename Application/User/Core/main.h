@@ -66,8 +66,9 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
-#define	LORAWAN_ACTIVATED			0
+#define	LORAWAN_ACTIVATED			1
 #define	IKS01A1_ACTIVATED			1
+#define	GNSS_ACTIVATED				1
 
 // Enable sensor masks
 #define PRESSURE_SENSOR                         0x00000001
@@ -124,6 +125,10 @@ void FloatToInt(float in, displayFloatToInt_t *out_value, int32_t dec_prec);
 #define USARTx_RX_GPIO_Port 	GPIOA
 #define USARTx_TX_Pin 			GPIO_PIN_2
 #define USARTx_TX_GPIO_Port 	GPIOA
+#define USART1_RX_Pin 			GPIO_PIN_7
+#define USART1_RX_GPIO_Port 	GPIOB
+#define USART1_TX_Pin 			GPIO_PIN_6
+#define USART1_TX_GPIO_Port 	GPIOB
 #define PROB4_Pin 				GPIO_PIN_10
 #define PROB4_GPIO_Port 		GPIOB
 /* USER CODE BEGIN Private defines */

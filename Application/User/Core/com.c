@@ -49,7 +49,7 @@
 #define Uart_Msg_Max_Size TMsg_MaxLen
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef UartHandle;
+extern UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_rx;
 DMA_HandleTypeDef hdma_tx;
 
@@ -149,7 +149,7 @@ void UART_SendMsg(TMsg *Msg)
 
   CountOut = ByteStuffCopy((uint8_t *) UART_TxBuffer, Msg);
 
-  HAL_UART_Transmit(&UartHandle, (uint8_t *)UART_TxBuffer, CountOut, 5000);
+  HAL_UART_Transmit(&huart2, (uint8_t *)UART_TxBuffer, CountOut, 5000);
 }
 
 

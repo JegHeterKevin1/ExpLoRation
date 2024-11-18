@@ -24,6 +24,9 @@
 #include "app_lorawan.h"
 #include "sensor.h"
 #include "serial_protocol.h"
+#include "gps_uart_if.h"
+#include "tinygps.h"
+#include "sys_app.h"
 #include "sys_sensors.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -35,6 +38,8 @@
 extern volatile uint8_t DataLoggerActive; /*!< DataLogger Flag */
 extern UART_HandleTypeDef huart2;     /*!< UART HANDLE */
 
+extern volatile bool GPS_DataReceived;
+
 /* Private define ------------------------------------------------------------*/
 
 
@@ -42,6 +47,16 @@ extern UART_HandleTypeDef huart2;     /*!< UART HANDLE */
 
 #define MAX_BUF_SIZE 				256
 
+/**  Definition for GPS Power PIN and Port **/
+/**
+  * @brief Pin of GPS Power
+  */
+#define GPS_PWR_PIN                           GPIO_PIN_2
+
+/**
+  * @brief Port of GPS Power
+  */
+#define GPS_PWR_PORT                          GPIOC
 
 /* Private variables ---------------------------------------------------------*/
 
@@ -95,7 +110,13 @@ int main(void)
 	TMsg			MsgDat;
 #endif // IKS01A1_ACTIVATED
 
+#if defined(GNSS_ACTIVATED)
+	float 			flat, flon;
+	unsigned long 	age;
+#endif 	// GNSS_ACTIVATED
+
 	/* MCU Configuration--------------------------------------------------------*/
+	GPIO_InitTypeDef  gpio_init_structure = {0};
 
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
@@ -112,13 +133,42 @@ int main(void)
 	BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
 	BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
+#if defined(GNSS_ACTIVATED)
+	/* Configure the GPIO GPS Power pin */
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	gpio_init_structure.Pin = GPS_PWR_PIN;
+	gpio_init_structure.Mode = GPIO_MODE_OUTPUT_PP;
+	gpio_init_structure.Pull = GPIO_NOPULL;
+	gpio_init_structure.Speed = GPIO_SPEED_FREQ_HIGH;
+
+	HAL_GPIO_Init(GPS_PWR_PORT, &gpio_init_structure);
+	HAL_GPIO_WritePin(GPS_PWR_PORT, GPS_PWR_PIN, GPIO_PIN_RESET);
+#endif // GNSS_ACTIVATED
+
+	/* Init the System */
+	SystemApp_Init();
+
+#if defined(GNSS_ACTIVATED)
+
+	HAL_UART_Transmit(&huart2, (uint8_t *)"Init of GPS Module", 2, 5000);
+
+	/* Init GPS Module */
+	gps_uart_Init();
+	gps_uart_ReceiveInit();
+
+#endif // GNSS_ACTIVATED
+
 #if defined(LORAWAN_ACTIVATED)
+
 	/* Initialize all configured peripherals */
 	MX_LoRaWAN_Init();
+
 #endif	// LORAWAN_ACTIVATED
 
 	/* Init IKS01A1 */
 #if defined(IKS01A1_ACTIVATED)
+
+	HAL_UART_Transmit(&huart2, (uint8_t *)"Init of IKS01A1 Sensors", 2, 5000);
 
 	/*Initialize the Sensors */
 	EnvSensors_Init();
@@ -128,6 +178,7 @@ int main(void)
 	/* Infinite loop */
 	while (1)
 	{
+		HAL_Delay(1000);
 
 #if defined(LORAWAN_ACTIVATED)
 		MX_LoRaWAN_Process();
@@ -147,13 +198,29 @@ int main(void)
 
 		HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
 
-		HAL_Delay(1000);
-
 #endif // IKS01A1_ACTIVATED
 
-	/* USER CODE BEGIN 3 */
+#if defined(GNSS_ACTIVATED)
+		if (false != GPS_DataReceived)
+		{
+			gps_f_get_position(&flat, &flon, &age);
+			snprintf(dataOut, MAX_BUF_SIZE, "\r\n\tLAT= %f LON= %f SAT=%d PREC=%ld \n\r\n", flat, flon, gps_satellites(), gps_hdop());
+			HAL_UART_Transmit(&huart2, (uint8_t *)dataOut, strlen(dataOut), 5000);
+
+			GPS_DataReceived = false;
+
+			HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
+		}
+
+#endif	// GNSS_ACTIVATED
+
+
+#if !defined (GNSS_ACTIVATED) && !defined (IKS01A1_ACTIVATED) && !defined(LORAWAN_ACTIVATED)
+	HAL_UART_Transmit(&huart2, (uint8_t *)"\r\nEnd of Cycle\r\n", 16, 5000);
+	BSP_LED_Toggle(LED_BLUE);
+#endif
+
 	}
-	/* USER CODE END 3 */
 }
 
 

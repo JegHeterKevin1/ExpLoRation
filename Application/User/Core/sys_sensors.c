@@ -25,6 +25,7 @@
 #include "sys_sensors.h"
 #include "sensor.h"
 #include "main.h"
+#include "tinygps.h"
 
 
 /* External variables ---------------------------------------------------------*/
@@ -64,9 +65,13 @@ extern void 	*MAGNETO_handle;
 /* Exported functions --------------------------------------------------------*/
 int32_t  EnvSensors_Read(sensor_t *sensor_data)
 {
+	float 					flat, flon;
+	unsigned long 			age;
 	float 					HUMIDITY_Value = HUMIDITY_DEFAULT_VAL;
 	float 					TEMPERATURE_Value = TEMPERATURE_DEFAULT_VAL;
 	float					PRESSURE_Value = PRESSURE_DEFAULT_VAL;
+	displayFloatToInt_t		lat_out_value;
+	displayFloatToInt_t		lon_out_value;
 
 	BSP_HUMIDITY_Get_Hum(HUMIDITY_handle, &HUMIDITY_Value);
 	BSP_TEMPERATURE_Get_Temp(TEMPERATURE_handle, &TEMPERATURE_Value);
@@ -75,6 +80,34 @@ int32_t  EnvSensors_Read(sensor_t *sensor_data)
 	sensor_data->pressure    = PRESSURE_Value;
 	sensor_data->temperature = TEMPERATURE_Value;
 	sensor_data->humidity    = HUMIDITY_Value;
+
+	gps_f_get_position(&flat, &flon, &age);
+
+	FloatToInt(flat, &lat_out_value, 5);
+
+	// Latitude is negative
+	if (0 != lat_out_value.sign)
+	{
+		sensor_data->latitude  = -(int32_t)(lat_out_value.out_int * 100000 + lat_out_value.out_dec);
+	}
+	// Latitude is positive
+	else
+	{
+		sensor_data->latitude  = (int32_t)(lat_out_value.out_int * 100000 + lat_out_value.out_dec);
+	}
+
+	FloatToInt(flon, &lon_out_value, 5);
+
+	// Longitude is negative
+	if (0 != lon_out_value.sign)
+	{
+		sensor_data->longitude = -(int32_t)(lon_out_value.out_int * 100000 + lon_out_value.out_dec);
+	}
+	// Longitude is positive
+	else
+	{
+		sensor_data->longitude = (int32_t)(lon_out_value.out_int * 100000 + lon_out_value.out_dec);
+	}
 
 	return 0;
 }

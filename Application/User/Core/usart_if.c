@@ -85,7 +85,9 @@ static void (*TxCpltCallback)(void *);
   * @param  error errorcode
   * @return none
   */
-static void (*RxCpltCallback)(uint8_t *rxChar, uint16_t size, uint8_t error);
+#if 0
+static void (*Rx2CpltCallback)(uint8_t *rxChar, uint16_t size, uint8_t error);
+#endif
 
 /* USER CODE BEGIN PV */
 
@@ -168,8 +170,10 @@ UTIL_ADV_TRACE_Status_t vcom_ReceiveInit(void (*RxCb)(uint8_t *rxChar, uint16_t 
   /* USER CODE END vcom_ReceiveInit_1 */
   UART_WakeUpTypeDef WakeUpSelection;
 
+#if 0
   /*record call back*/
-  RxCpltCallback = RxCb;
+  Rx2CpltCallback = RxCb;
+#endif
 
   /*Set wakeUp event on start bit*/
   WakeUpSelection.WakeUpEvent = UART_WAKEUP_ON_STARTBIT;
@@ -218,32 +222,32 @@ void vcom_Resume(void)
   /* USER CODE END vcom_Resume_2 */
 }
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart2)
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *uartHandle)
 {
-  /* USER CODE BEGIN HAL_UART_TxCpltCallback_1 */
-
-  /* USER CODE END HAL_UART_TxCpltCallback_1 */
-  /* buffer transmission complete*/
-  TxCpltCallback(NULL);
-  /* USER CODE BEGIN HAL_UART_TxCpltCallback_2 */
-
-  /* USER CODE END HAL_UART_TxCpltCallback_2 */
+	/* buffer transmission complete*/
+	if(uartHandle->Instance==USART2)
+	{
+		TxCpltCallback(NULL);
+	}
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart2)
+#if 0
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *uartHandle)
 {
-  /* USER CODE BEGIN HAL_UART_RxCpltCallback_1 */
-
-  /* USER CODE END HAL_UART_RxCpltCallback_1 */
-  if ((NULL != RxCpltCallback) && (HAL_UART_ERROR_NONE == huart2->ErrorCode))
-  {
-    RxCpltCallback(&charRx, 1, 0);
-  }
-  HAL_UART_Receive_IT(huart2, &charRx, 1);
-  /* USER CODE BEGIN HAL_UART_RxCpltCallback_2 */
-
-  /* USER CODE END HAL_UART_RxCpltCallback_2 */
+	if(uartHandle->Instance==USART2)
+	{
+		if ((NULL != Rx2CpltCallback) && (HAL_UART_ERROR_NONE == uartHandle->ErrorCode))
+		{
+			Rx2CpltCallback(&charRx, 1, 0);
+		}
+		HAL_UART_Receive_IT(uartHandle, &charRx, 1);
+	}
+	else
+	{
+		/* Do Nothing */
+	}
 }
+#endif
 
 /* USER CODE BEGIN EF */
 

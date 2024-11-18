@@ -59,6 +59,8 @@
 extern RTC_HandleTypeDef hrtc;
 extern SUBGHZ_HandleTypeDef hsubghz;
 extern DMA_HandleTypeDef hdma_usart2_tx;
+extern DMA_HandleTypeDef hdma_usart1_rx;
+extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 
@@ -243,10 +245,18 @@ void EXTI1_IRQHandler(void)
   /* USER CODE END EXTI1_IRQn 1 */
 }
 
-
+/**
+  * @brief This function handles EXTI Line 6 Interrupt.
+  */
 void EXTI9_5_IRQHandler(void)
 {
-	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+  /* USER CODE BEGIN EXTI6_IRQn 0 */
+
+  /* USER CODE END EXTI6_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+  /* USER CODE BEGIN EXTI6_IRQn 1 */
+
+  /* USER CODE END EXTI6_IRQn 1 */
 }
 
 /**
@@ -271,6 +281,22 @@ void DMA1_Channel5_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
 
   /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 Channel 6 Interrupt.
+  */
+void DMA1_Channel6_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(&hdma_usart1_rx);
+}
+
+/**
+  * @brief This function handles USART1 Interrupt.
+  */
+void USART1_IRQHandler(void)
+{
+	HAL_UART_IRQHandler(&huart1);
 }
 
 /**
