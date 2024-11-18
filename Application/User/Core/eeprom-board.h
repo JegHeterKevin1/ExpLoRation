@@ -73,7 +73,7 @@ LmnStatus_t EepromMcuGetDeviceAddr( void );
 
 bool EepromMcuIsErasingOnGoing( void );
 
-void EepromMcuInit( void );
+void EepromMcuInit(void);
 
 #ifdef __cplusplus
 }

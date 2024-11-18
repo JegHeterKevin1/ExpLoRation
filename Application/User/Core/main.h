@@ -66,7 +66,7 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
-#define	LORAWAN_ACTIVATED			1
+#define	LORAWAN_ACTIVATED			0
 #define	IKS01A1_ACTIVATED			1
 
 // Enable sensor masks

@@ -92,17 +92,22 @@ extern "C" {
  */
 #define STATIC_DEVICE_EUI                                  0
 
+// Using keys from https://liveobjects.orange-business.com/#/devices/view/urn:lo:nsid:lora:0004A30B00ED4016?groupPath=%2FBE
+// DevEUI: 0004A30B00ED4016
+// AppEUI: 4ED740BE78C845E9
+// AppKey: E8EBA85C52EE825B585017E8ED2426CD
+
 /*!
  * end-device IEEE EUI (big endian)
  */
 //#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x01, 0x01, 0x01, 0x01, 0x01 }
-#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x15, 0x00, 0x0A, 0xD5, 0xBB }		// 0080E115000AD5BB
+#define LORAWAN_DEVICE_EUI                                 { 0x00, 0x80, 0xE1, 0x15, 0x05, 0x00, 0x5C, 0xFD }
 
 /*!
  * App/Join server IEEE EUI (big endian)
  */
 //#define LORAWAN_JOIN_EUI                                   { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 }
-#define LORAWAN_JOIN_EUI                                   { 0x4E, 0xD7, 0x40, 0xBE, 0x78, 0xC8, 0x45, 0xE9 }		// 4ED740BE78C845E9
+#define LORAWAN_JOIN_EUI                                   { 0x4E, 0xD7, 0x40, 0xBE, 0x78, 0xC8, 0x45, 0xE9 }
 
 /*!
  * When set to 1 DevAddr is LORAWAN_DEVICE_ADDRESS
@@ -114,32 +119,31 @@ extern "C" {
 /*!
  * Device address on the network (big endian)
  */
-//#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x0100000A
-#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x31DCE764
+#define LORAWAN_DEVICE_ADDRESS                             ( uint32_t )0x0100000A
 
 /*!
  * Application root key
  */
-#define LORAWAN_APP_KEY                                    2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C			// 2B7E151628AED2A6ABF7158809CF4F3C
-//#define LORAWAN_APP_KEY                                    E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
+//#define LORAWAN_APP_KEY                                    2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
+#define LORAWAN_APP_KEY                                    E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
 
 /*!
  * Network root key
  */
-//#define LORAWAN_NWK_KEY                                    E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
-#define LORAWAN_NWK_KEY										LORAWAN_APP_KEY
+//#define LORAWAN_NWK_KEY                                    2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
+#define LORAWAN_NWK_KEY                                    E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
 
 /*!
  * Forwarding Network session key
  */
+//#define LORAWAN_NWK_S_KEY                                  2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 #define LORAWAN_NWK_S_KEY                                  E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
-//#define LORAWAN_NWK_S_KEY									LORAWAN_APP_KEY
 
 /*!
  * Application session key
  */
+//#define LORAWAN_APP_S_KEY                                  2B,7E,15,16,28,AE,D2,A6,AB,F7,15,88,09,CF,4F,3C
 #define LORAWAN_APP_S_KEY                                  E8,EB,A8,5C,52,EE,82,5B,58,50,17,E8,ED,24,26,CD
-//#define LORAWAN_APP_S_KEY									LORAWAN_APP_KEY
 
 /*!
  * Format commissioning keys

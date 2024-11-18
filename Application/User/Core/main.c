@@ -112,15 +112,16 @@ int main(void)
 	BSP_PB_Init(BUTTON_SW2, BUTTON_MODE_EXTI);
 	BSP_PB_Init(BUTTON_SW3, BUTTON_MODE_EXTI);
 
-
+#if defined(LORAWAN_ACTIVATED)
 	/* Initialize all configured peripherals */
 	MX_LoRaWAN_Init();
-
+#endif	// LORAWAN_ACTIVATED
 
 	/* Init IKS01A1 */
 #if defined(IKS01A1_ACTIVATED)
 
-	/* TBD */
+	/*Initialize the Sensors */
+	EnvSensors_Init();
 
 #endif // IKS01A1_ACTIVATED
 
@@ -135,9 +136,18 @@ int main(void)
 #if defined(IKS01A1_ACTIVATED)
 
 		/* IKS01A1 Sensors handling */
+		AutoInit			= 1;
 
-		/* TBD */
+		Accelero_Sensor_Handler(&MsgDat);
+		Gyro_Sensor_Handler(&MsgDat);
+		Magneto_Sensor_Handler(&MsgDat);
+		Humidity_Sensor_Handler(&MsgDat);
+		Temperature_Sensor_Handler(&MsgDat);
+		Pressure_Sensor_Handler(&MsgDat);
 
+		HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
+
+		HAL_Delay(1000);
 
 #endif // IKS01A1_ACTIVATED
 

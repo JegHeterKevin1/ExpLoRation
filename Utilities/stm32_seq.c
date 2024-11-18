@@ -229,7 +229,7 @@ void UTIL_SEQ_Run( UTIL_SEQ_bm_t Mask_bm )
     /**
      * When a flag is set, the associated bit is set in TaskPrio[counter].priority mask depending
      * on the priority parameter given from UTIL_SEQ_SetTask()
-     * The while loop is looking for a flag set from the highest priority maskr to the lower
+     * The while loop is looking for a flag set from the highest priority mask to the lower
      */
     while((TaskPrio[counter].priority & TaskMask & SuperMask)== 0U)
     {

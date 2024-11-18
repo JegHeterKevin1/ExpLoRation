@@ -140,13 +140,13 @@ extern "C" {
 #endif
 
 #if (defined (USE_STM32WLXX_NUCLEO))
-#define NUCLEO_I2C_EXPBD							/* TBD */
-#define NUCLEO_I2C_EXPBD_CLK_ENABLE()				/* TBD */
-#define NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_CLK_ENABLE()	/* TBD */
-#define NUCLEO_I2C_EXPBD_SCL_SDA_AF					/* TBD */
-#define NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_PORT			/* TBD */
-#define NUCLEO_I2C_EXPBD_SCL_PIN					/* TBD */
-#define NUCLEO_I2C_EXPBD_SDA_PIN					/* TBD */
+#define NUCLEO_I2C_EXPBD                            I2C2
+#define NUCLEO_I2C_EXPBD_CLK_ENABLE()               __I2C2_CLK_ENABLE()
+#define NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_CLK_ENABLE()  __GPIOA_CLK_ENABLE()
+#define NUCLEO_I2C_EXPBD_SCL_SDA_AF                 GPIO_AF4_I2C2
+#define NUCLEO_I2C_EXPBD_SCL_SDA_GPIO_PORT          GPIOA
+#define NUCLEO_I2C_EXPBD_SCL_PIN                    GPIO_PIN_12
+#define NUCLEO_I2C_EXPBD_SDA_PIN                    GPIO_PIN_11
 
 #define NUCLEO_I2C_EXPBD_FORCE_RESET()              __I2C2_FORCE_RESET()
 #define NUCLEO_I2C_EXPBD_RELEASE_RESET()            __I2C2_RELEASE_RESET()
@@ -164,8 +164,8 @@ extern "C" {
 #endif
 
 #if (defined (USE_STM32WLXX_NUCLEO))
-#define NUCLEO_I2C_EXPBD_EV_IRQn					/* TBD */
-#define NUCLEO_I2C_EXPBD_ER_IRQn					/* TBD */
+#define NUCLEO_I2C_EXPBD_EV_IRQn                    I2C2_EV_IRQn
+#define NUCLEO_I2C_EXPBD_ER_IRQn                    I2C2_ER_IRQn
 #endif
 
 /* Maximum Timeout values for flags waiting loops. These timeouts are not based
