@@ -171,10 +171,6 @@ static LmHandlerParams_t LmHandlerParams =
   .PingPeriodicity =          LORAWAN_DEFAULT_PING_SLOT_PERIODICITY
 };
 
-/**
-  * @brief Type of Event to generate application Tx
-  */
-//static TxEventType_t EventType = TX_ON_TIMER;
 
 /**
   * @brief Timer to handle the application Tx
@@ -270,8 +266,6 @@ void LoRaWAN_Init(void)
 
 	if (LmHandlerJoinStatus() != LORAMAC_HANDLER_SET)
 	{
-		APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### Never joined, proceeding...\r\n");
-
 		UTIL_TIMER_Start(&JoinLedTimer);
 
 		// Add a 10s delay to avoid a Join Request too soon when reflashing the board
@@ -285,11 +279,11 @@ void LoRaWAN_Init(void)
 	}
 	else
 	{
-		APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### == Already JOINED == \r\n");
+		APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = Already JOINED = \r\n");
 
 		if (LmHandlerLinkCheckReq() != LORAMAC_HANDLER_SUCCESS)
 		{
-			APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### == LINK CHECK FAILED == ");
+			APP_LOG(TS_OFF, VLEVEL_M, "\r\n###### = LINK CHECK FAILED = ");
 		}
 	}
 
@@ -474,9 +468,10 @@ static void SendTxDataCustom(void)
 static void SendTxData(void)
 {
   /* USER CODE BEGIN SendTxData_1 */
-  uint16_t pressure = 0;
-  int16_t temperature = 0;
-  sensor_t sensor_data;
+  uint16_t	pressure = 0;
+  int16_t	temperature = 0;
+  uint16_t	humidity = 0;
+  sensor_t	sensor_data;
   UTIL_TIMER_Time_t nextTxIn = 0;
 
 #ifdef CAYENNE_LPP
@@ -490,26 +485,23 @@ static void SendTxData(void)
 #endif /* CAYENNE_LPP */
 
   EnvSensors_Read(&sensor_data);
-  temperature = (SYS_GetTemperatureLevel() >> 8);
-  pressure    = (uint16_t)(sensor_data.pressure * 100 / 10);      /* in hPa / 10 */
+
+  pressure		= (uint16_t)(sensor_data.pressure * 100 / 100);      	/* in hPa / 10 */
+  temperature	= (int16_t)(sensor_data.temperature * 100 / 10);		/* in degrees / 10 */
+  humidity		= (uint16_t)(sensor_data.humidity * 100 / 100);      	/* in % */
 
   AppData.Port = LORAWAN_USER_APP_PORT;
 
 #ifdef CAYENNE_LPP
-  CayenneLppReset();
-  CayenneLppAddBarometricPressure(channel++, pressure);
-  CayenneLppAddTemperature(channel++, temperature);
-  CayenneLppAddRelativeHumidity(channel++, (uint16_t)(sensor_data.humidity));
+	CayenneLppReset();
+	CayenneLppAddBarometricPressure(channel++, pressure);
+	CayenneLppAddTemperature(channel++, temperature);
+	CayenneLppAddRelativeHumidity(channel++, humidity);
+	CayenneLppAddDigitalInput(channel++, GetBatteryLevel());
+	CayenneLppAddDigitalOutput(channel++, AppLedStateOn);
 
-  if ((LmHandlerParams.ActiveRegion != LORAMAC_REGION_US915) && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AU915)
-      && (LmHandlerParams.ActiveRegion != LORAMAC_REGION_AS923))
-  {
-    CayenneLppAddDigitalInput(channel++, GetBatteryLevel());
-    CayenneLppAddDigitalOutput(channel++, AppLedStateOn);
-  }
-
-  CayenneLppCopy(AppData.Buffer);
-  AppData.BufferSize = CayenneLppGetSize();
+	CayenneLppCopy(AppData.Buffer);
+	AppData.BufferSize = CayenneLppGetSize();
 #else  /* not CAYENNE_LPP */
   humidity    = (uint16_t)(sensor_data.humidity * 10);            /* in %*10     */
 

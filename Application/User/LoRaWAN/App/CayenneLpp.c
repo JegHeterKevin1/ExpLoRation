@@ -254,7 +254,9 @@ uint8_t CayenneLppAddTemperature(uint8_t channel, int16_t celsius)
   {
     return 0;
   }
-  int16_t val = celsius * 10;
+  //int16_t val = celsius * 10;
+  int16_t val = celsius;
+
   CayenneLppBuffer[CayenneLppCursor++] = channel;
   CayenneLppBuffer[CayenneLppCursor++] = LPP_TEMPERATURE;
   CayenneLppBuffer[CayenneLppCursor++] = val >> 8;
@@ -367,9 +369,14 @@ uint8_t CayenneLppAddGps(uint8_t channel, int32_t latitude, int32_t longitude, i
   {
     return 0;
   }
-  int32_t lat = latitude * 10000;
-  int32_t lon = longitude * 10000;
-  int32_t alt = meters * 100;
+  //int32_t lat = latitude * 10000;
+  int32_t lat = latitude / 10;
+
+  //int32_t lon = longitude * 10000;
+  int32_t lon = longitude / 10;
+
+  //int32_t alt = meters * 100;
+  int32_t alt = meters;
 
   CayenneLppBuffer[CayenneLppCursor++] = channel;
   CayenneLppBuffer[CayenneLppCursor++] = LPP_GPS;

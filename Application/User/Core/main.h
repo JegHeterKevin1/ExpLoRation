@@ -67,8 +67,8 @@ extern "C" {
 /* USER CODE BEGIN EM */
 
 #define	LORAWAN_ACTIVATED			1
-//#define	IKS01A1_ACTIVATED			1
-//#define	GNSS_ACTIVATED				1
+#define	IKS01A1_ACTIVATED			1
+#define	GNSS_ACTIVATED				1
 
 // Enable sensor masks
 #define PRESSURE_SENSOR                         0x00000001
