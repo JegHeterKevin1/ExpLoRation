@@ -78,6 +78,7 @@ typedef enum
   CFG_SEQ_Task_LmHandlerProcess,
   CFG_SEQ_Task_LoRaSendOnTxTimerOrButtonEvent,
   CFG_SEQ_Task_LoRaSendCustom,
+  CFG_SEQ_Task_ScheduledTask,
 
   /* USER CODE BEGIN CFG_SEQ_Task_Id_t */
 

@@ -28,9 +28,10 @@
 #include "tinygps.h"
 #include "sys_app.h"
 #include "sys_sensors.h"
-#include "app_lorawan.h"
 #include "lora_app.h"
 #include "stm32_seq.h"
+#include "stm32_timer.h"
+#include "utilities_def.h"
 
 /* Private includes ----------------------------------------------------------*/
 
@@ -45,8 +46,16 @@ extern volatile bool GPS_DataReceived;
 
 /* Private define ------------------------------------------------------------*/
 
+/* Exported variables ---------------------------------------------------------*/
+/**
+* @brief Timer to handle the scheduled task
+*/
+extern UTIL_TIMER_Object_t ScheduledTaskTimer;
 
 /* Private macro -------------------------------------------------------------*/
+
+/* Period of the scheduled task in ms */
+#define SCHEDULED_TASK_PERIOD 5000
 
 #define MAX_BUF_SIZE 				256
 
@@ -85,6 +94,20 @@ int 				RTC_SYNCH_PREDIV;
 
 uint8_t new_data = 0;
 uint8_t new_data_flags = 0;
+
+/* Private variables ---------------------------------------------------------*/
+
+/**
+  * @brief Timer to handle the scheduled task
+  */
+UTIL_TIMER_Object_t ScheduledTaskTimer;
+
+
+/* Private function prototypes -----------------------------------------------*/
+
+static void ScheduledTask(void);
+static void OnPeriodicTaskTimerEvent(void *context);
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -109,14 +132,6 @@ static void Temperature_Sensor_Handler(TMsg *Msg);
   */
 int main(void)
 {
-#if defined(IKS01A1_ACTIVATED)
-	TMsg			MsgDat;
-#endif // IKS01A1_ACTIVATED
-
-#if defined(GNSS_ACTIVATED)
-	float 			flat, flon;
-	unsigned long 	age;
-#endif 	// GNSS_ACTIVATED
 
 	/* MCU Configuration--------------------------------------------------------*/
 	GPIO_InitTypeDef  gpio_init_structure = {0};
@@ -151,6 +166,16 @@ int main(void)
 	/* Init the System */
 	SystemApp_Init();
 
+	/* Register the scheduled task */
+	UTIL_SEQ_RegTask((1 << CFG_SEQ_Task_ScheduledTask), UTIL_SEQ_RFU, ScheduledTask);
+
+	/* Configure the timer to trigger the scheduled task */
+	UTIL_TIMER_Create(&ScheduledTaskTimer, 0xFFFFFFFFU, UTIL_TIMER_PERIODIC, OnPeriodicTaskTimerEvent, NULL);
+	UTIL_TIMER_SetPeriod(&ScheduledTaskTimer, SCHEDULED_TASK_PERIOD);
+
+	/* Print welcome message */
+	HAL_UART_Transmit(&huart2, (uint8_t *)"System Initialized...\r\n", 24, 5000);
+
 #if defined(GNSS_ACTIVATED)
 
 	HAL_UART_Transmit(&huart2, (uint8_t *)"Init of GPS Module", 2, 5000);
@@ -171,51 +196,62 @@ int main(void)
 	/* Init IKS01A1 */
 #if defined(IKS01A1_ACTIVATED)
 
-	HAL_UART_Transmit(&huart2, (uint8_t *)"Init of IKS01A1 Sensors", 2, 5000);
+	HAL_UART_Transmit(&huart2, (uint8_t *)"Init of IKS01A1 Sensor", 2, 5000);
 
 	/*Initialize the Sensors */
 	EnvSensors_Init();
 
 #endif // IKS01A1_ACTIVATED
 
+	/* Start the periodic timer for the scheduled task */
+	UTIL_TIMER_Start(&ScheduledTaskTimer);
+
 	/* Infinite loop */
 	while (1)
 	{
-		HAL_Delay(1000);
-
-#if defined(LORAWAN_ACTIVATED)
-
+		// Run the scheduler
 		UTIL_SEQ_Run(UTIL_SEQ_DEFAULT);
+	}
+}
 
-#endif	// LORAWAN_ACTIVATED
+static void ScheduledTask(void)
+{
+#if defined(IKS01A1_ACTIVATED)
+	TMsg			MsgDat;
+#endif // IKS01A1_ACTIVATED
+
+#if defined(GNSS_ACTIVATED)
+	float 			flat, flon;
+	unsigned long 	age;
+#endif 	// GNSS_ACTIVATED
 
 #if defined(IKS01A1_ACTIVATED)
 
-		/* IKS01A1 Sensors handling */
-		AutoInit			= 1;
+	/* IKS01A1 Sensors handling */
+	AutoInit			= 1;
 
-		Accelero_Sensor_Handler(&MsgDat);
-		Gyro_Sensor_Handler(&MsgDat);
-		Magneto_Sensor_Handler(&MsgDat);
-		Humidity_Sensor_Handler(&MsgDat);
-		Temperature_Sensor_Handler(&MsgDat);
-		Pressure_Sensor_Handler(&MsgDat);
+	Accelero_Sensor_Handler(&MsgDat);
+	Gyro_Sensor_Handler(&MsgDat);
+	Magneto_Sensor_Handler(&MsgDat);
+	Humidity_Sensor_Handler(&MsgDat);
+	Temperature_Sensor_Handler(&MsgDat);
+	Pressure_Sensor_Handler(&MsgDat);
 
-		HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
+	HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
 
 #endif // IKS01A1_ACTIVATED
 
 #if defined(GNSS_ACTIVATED)
-		if (false != GPS_DataReceived)
-		{
-			gps_f_get_position(&flat, &flon, &age);
-			snprintf(dataOut, MAX_BUF_SIZE, "\r\n\tLAT= %f LON= %f SAT=%d PREC=%ld \n\r\n", flat, flon, gps_satellites(), gps_hdop());
-			HAL_UART_Transmit(&huart2, (uint8_t *)dataOut, strlen(dataOut), 5000);
+	if (false != GPS_DataReceived)
+	{
+		gps_f_get_position(&flat, &flon, &age);
+		snprintf(dataOut, MAX_BUF_SIZE, "\r\n\tLAT= %f LON= %f SAT=%d PREC=%ld \n\r\n", flat, flon, gps_satellites(), gps_hdop());
+		HAL_UART_Transmit(&huart2, (uint8_t *)dataOut, strlen(dataOut), 5000);
 
-			GPS_DataReceived = false;
+		GPS_DataReceived = false;
+	}
 
-			HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
-		}
+	HAL_UART_Transmit(&huart2, (uint8_t *)"\r\n", 2, 5000);
 
 #endif	// GNSS_ACTIVATED
 
@@ -224,8 +260,11 @@ int main(void)
 	HAL_UART_Transmit(&huart2, (uint8_t *)"\r\nEnd of Cycle\r\n", 16, 5000);
 	BSP_LED_Toggle(LED_BLUE);
 #endif
+}
 
-	}
+static void OnPeriodicTaskTimerEvent(void *context)
+{
+UTIL_SEQ_SetTask((1 << CFG_SEQ_Task_ScheduledTask), CFG_SEQ_Prio_0);
 }
 
 
