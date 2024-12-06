@@ -35,7 +35,7 @@ This project involves using the **STM32WL microcontroller** in conjunction with 
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/JegHeterKevin1/ExpLoRation.git
+git clone https://github.com/Kevin-Pottier/ExpLoRation.git
 ```
 
 ## Important Notes on Code Origin
